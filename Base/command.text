@@ -1,0 +1,3 @@
+php artisan make:model Base 
+ 
+php artisan make:controller AuthController -r --model=User
