@@ -1,3 +1,12 @@
 php artisan make:model Base 
- 
+
+php artisan make:repository User
+
 php artisan make:controller AuthController -r --model=User
+php artisan make:controller UserController -r --model=User
+
+php artisan make:mail UserRegister
+
+php artisan make:resource UserListCollection --collection
+php artisan make:resource UserListResource
+
