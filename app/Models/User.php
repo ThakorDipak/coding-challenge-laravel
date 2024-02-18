@@ -41,6 +41,7 @@ class User extends Authenticatable
         'REMEMBER_TOKEN'     => self::REMEMBER_TOKEN,
         'EMAIL_VERIFIED_AT'  => self::EMAIL_VERIFIED_AT,
         'VERIFICATION_TOKEN' => self::VERIFICATION_TOKEN,
+        'UPDATED_AT'         => self::UPDATED_AT,
     ];
 
     protected $fillable = self::FILLABLE;

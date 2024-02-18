@@ -18,6 +18,10 @@ Route::prefix('v1')->group(function () {
     Route::post('login', [App\Http\Controllers\AuthController::class, 'login'])->name('admin.login');
     Route::post('register', [App\Http\Controllers\AuthController::class, 'register'])->name('user.register');
 
+    Route::get('email-verify/{token}', [App\Http\Controllers\AuthController::class, 'emailVerify']);
+    Route::post('resend-verify-mail', [App\Http\Controllers\AuthController::class, 'resendVerifyMail']);
+
+
     Route::middleware('auth:sanctum')->group(function () {
         Route::post('user/status', [App\Http\Controllers\UserController::class, 'userStatus'])->name('bulk.user.status');
         Route::post('user/delete', [App\Http\Controllers\UserController::class, 'userDestroy'])->name('bulk.user.destroy');

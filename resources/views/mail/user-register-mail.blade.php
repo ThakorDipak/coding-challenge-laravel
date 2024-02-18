@@ -48,7 +48,7 @@
                                         </p>
                                         <a href="javascript:void(0);"></a>
 
-                                        <a href="{{ config('app.front_url') . 'verified/' . $user->verification_token }}"
+                                        <a href="{{ config('app.front_url') . 'email-verify/' . $user->verification_token }}"
                                             style="background:#20e277;text-decoration:none !important; font-weight:500; margin-top:35px; margin-bottom:35px; color:#fff;text-transform:uppercase; font-size:14px;padding:10px 24px;display:inline-block;border-radius:50px;"
                                             class="btn-green">
                                             Verify Email
