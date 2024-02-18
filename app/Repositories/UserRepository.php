@@ -3,6 +3,7 @@
 namespace App\Repositories;
 
 use App\Models\Role;
+use App\Models\Base;
 use App\Models\User;
 use Illuminate\Http\Request;
 use App\Http\Requests\UpdateUserRequest;
@@ -12,7 +13,11 @@ class UserRepository
     public function index(Request $request)
     {
         $search = $request->search;
-        $userQuery = User::query()->latest();
+        $paginateValue = $request[Base::PAGINATE] ?? 10;
+
+
+        $userQuery = User::query();
+        // $userQuery->latest();
         $userQuery->where(User::ROLE, Role::CUSTOMER);
         $userQuery->where(function ($userQuery) use ($search) {
             $userQuery->where(User::FIRST_NAME, 'like', "%{$search}%")
@@ -20,7 +25,11 @@ class UserRepository
                 ->orWhere(User::EMAIL, 'like', "%{$search}%")
                 ->orWhere(User::STATUS, 'like', "%{$search}%");
         });
-        $users = $userQuery->paginate(20);
+        if ($request->sort_by) {
+            $userQuery->orderBy($request->sort_by);
+        }
+
+        $users = $userQuery->paginate($paginateValue);
         return $users;
     }
 

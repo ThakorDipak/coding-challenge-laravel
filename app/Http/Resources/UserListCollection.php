@@ -14,6 +14,29 @@ class UserListCollection extends ResourceCollection
      */
     public function toArray(Request $request): array
     {
-        return parent::toArray($request);
+        if ($this->resource instanceof \Illuminate\Pagination\LengthAwarePaginator) {
+
+            $pagination = [
+                'pagination' => [
+                    'current_page' => $this->currentPage(),
+                    'from'         => $this->firstItem(),
+                    'path'         => $this->path(),
+                    'total'        => $this->total(),
+                    'count'        => $this->count(),
+                    'per_page'     => $this->perPage(),
+                    'to'           => $this->lastItem(),
+                    'next_page'    => $this->currentPage() + 1,
+                    'last_page'    => $this->lastPage(),
+                    'hasPages'     => $this->hasPages(),
+                    'hasMorePages' => $this->hasMorePages(),
+                ]
+            ];
+            return [
+                'data' => $this->collection,
+                ...$pagination,
+            ];
+        } else {
+            return parent::toArray($request);
+        }
     }
 }

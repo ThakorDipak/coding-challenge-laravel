@@ -9,6 +9,8 @@ class Base extends Model
 {
     use HasFactory;
 
+    const PAGINATE = 'paginate';
+
     const ID               = 'id';
     const SLUG             = 'slug';
     const STATUS           = 'status';
