@@ -15,13 +15,17 @@ use Illuminate\Support\Facades\Route;
 */
 
 Route::prefix('v1')->group(function () {
+    Route::post('login', [App\Http\Controllers\AuthController::class, 'login'])->name('admin.login');
     Route::post('register', [App\Http\Controllers\AuthController::class, 'register'])->name('user.register');
-    Route::post('user/status', [App\Http\Controllers\UserController::class, 'userStatus'])->name('bulk.user.status');
-    Route::post('user/delete', [App\Http\Controllers\UserController::class, 'userDestroy'])->name('bulk.user.destroy');
 
-    Route::resources([
-        'user' => App\Http\Controllers\UserController::class,
-    ]);
+    Route::middleware('auth:sanctum')->group(function () {
+        Route::post('user/status', [App\Http\Controllers\UserController::class, 'userStatus'])->name('bulk.user.status');
+        Route::post('user/delete', [App\Http\Controllers\UserController::class, 'userDestroy'])->name('bulk.user.destroy');
+
+        Route::resources([
+            'user' => App\Http\Controllers\UserController::class,
+        ]);
+    });
 });
 
 
