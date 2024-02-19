@@ -65,9 +65,11 @@ class UserController extends Controller
         try {
             $statusUpdate = $request->status_update;
 
-            foreach ($statusUpdate as $userId => $status) {
-                $statusUpdateUser = User::find($userId);
-                $statusUpdateUser->update([User::STATUS => $status]);
+            foreach ($statusUpdate as $key => $item) {
+                $user = User::find($item['id']);
+                if ($user) {
+                    $user->update([User::STATUS => $item['status']]);
+                }
             }
 
             $message = __('Status update success');
