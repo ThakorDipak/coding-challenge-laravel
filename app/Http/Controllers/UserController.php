@@ -9,6 +9,7 @@ use Illuminate\Http\Request;
 use App\Repositories\UserRepository;
 use App\Http\Requests\UpdateUserRequest;
 use App\Http\Resources\UserListCollection;
+use App\Http\Resources\UsersResource;
 
 class UserController extends Controller
 {
@@ -45,13 +46,29 @@ class UserController extends Controller
         }
     }
 
+
+    public function singleStatusUpdate(User $user, $status)
+    {
+        try {
+            if ($user) {
+                $user->update([User::STATUS => $status]);
+                $message = __('Status update success');
+                return sendResponse([], $message);
+            }
+        } catch (Handler $th) {
+            return sendErrorException($th);
+        }
+    }
+
     public function userStatus(Request $request)
     {
         try {
-            $userIds = $request->status_update_ids;
-            $statusUpdateQuery = User::whereIn(User::ID, $userIds);
-            $statusUpdateQuery->update([User::STATUS => Status::ADMIN_PENDING]);
-            // $statusUpdateQuery->update([User::STATUS => Status::PENDING]);
+            $statusUpdate = $request->status_update;
+
+            foreach ($statusUpdate as $userId => $status) {
+                $statusUpdateUser = User::find($userId);
+                $statusUpdateUser->update([User::STATUS => $status]);
+            }
 
             $message = __('Status update success');
             return sendResponse([], $message);
@@ -78,7 +95,15 @@ class UserController extends Controller
 
     public function show(User $user)
     {
-        //
+        try {
+            $message = 'Show success';
+            $response = [
+                'user' => new UsersResource($user)
+            ];
+            return sendResponse($response, $message);
+        } catch (\Throwable $th) {
+            //throw $th;
+        }
     }
 
     public function destroy(User $user)

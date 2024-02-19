@@ -24,6 +24,7 @@ Route::prefix('v1')->group(function () {
 
     Route::middleware('auth:sanctum')->group(function () {
         Route::post('user/status', [App\Http\Controllers\UserController::class, 'userStatus'])->name('bulk.user.status');
+        Route::post('status/{user}/{status}', [App\Http\Controllers\UserController::class, 'singleStatusUpdate'])->name('single.status.update');
         Route::post('user/delete', [App\Http\Controllers\UserController::class, 'userDestroy'])->name('bulk.user.destroy');
 
         Route::resources([

@@ -19,7 +19,7 @@ class UpdateUserRequest extends FormRequest
         return [
             User::FIRST_NAME => 'required',
             User::LAST_NAME  => 'required',
-            User::EMAIL      => 'required|' . Rule::unique(User::TABLE_NAME, User::EMAIL),
+            User::EMAIL      => 'required|' . Rule::unique(User::TABLE_NAME, User::EMAIL)->ignore($this->id),
         ];
     }
 }
