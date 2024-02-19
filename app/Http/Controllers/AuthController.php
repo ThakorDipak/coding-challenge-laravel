@@ -22,9 +22,7 @@ class AuthController extends Controller
     private $auth_repo;
     public function __construct(AuthRepository $auth_repo)
     {
-
         $this->auth_repo = $auth_repo;
-        // $this->middleware('throttle:5,1')->only('resendConfirmationMail');
     }
 
     public function login(Request $request)
@@ -33,13 +31,11 @@ class AuthController extends Controller
             $existUser = User::where(User::EMAIL, $request->email)->first();
 
             if ($existUser && $existUser->status !== Status::CONFIRM) {
-                // return sendResponse([], 'Please active your account by confirming your email address.');
                 return sendError('Please active your account by confirming your email address.');
             } else if ($existUser && Auth::attempt(['email' => $request->email, 'password' => $request->password])) {
                 Auth::login($existUser);
                 $response = new AuthResource(Auth::user());
                 return sendResponse($response, 'User login successfully.');
-                return sendResponse($request->all());
             }
             return sendError('Invalid email or password.', ['message' => 'Invalid email or password.']);
         } catch (Handler $th) {
@@ -68,19 +64,30 @@ class AuthController extends Controller
     public function resendVerifyMail(Request $request)
     {
         try {
+            $validator = Validator::make($request->all(), [
+                User::EMAIL => 'required|exists:users,' . User::EMAIL
+            ]);
+
+            if ($validator->fails()) {
+                $response['email_invalid'] = true;
+                $response['validator_error'] = $validator->errors();
+                return sendError('The email is invalid', $response);
+            }
+
             $user = User::firstWhere(User::EMAIL, $request->email);
             if ($user) {
-                $user = $user->update([
-                    User::UPDATED_AT         => now(),
-                    User::VERIFICATION_TOKEN =>  Str::random(90),
-                ]);
-
-                // $user->update($updateInputs);
-                Mail::to($request->email)->send(new UserRegister($user));
-                // return sendResponse($updateInputs);
-
-                $response[User::STATUS] = true;
-                $message = __('Please check your email to verify your account');
+                if (!$user->email_verified_at) {
+                    $user->update([
+                        User::UPDATED_AT         => now(),
+                        User::VERIFICATION_TOKEN =>  Str::random(90),
+                    ]);
+                    Mail::to($request->email)->send(new UserRegister($user));
+                    $response[User::STATUS] = true;
+                    $message = __('Please check your email to verify your account');
+                } else {
+                    $response[User::STATUS] = true;
+                    $message = "Your e-mail is already verified.";
+                }
                 return sendResponse($response, $message);
             }
         } catch (\Throwable $th) {
@@ -96,7 +103,9 @@ class AuthController extends Controller
             ]);
 
             if ($validator->fails()) {
-                return sendError('The selected token is invalid', $validator->errors());
+                $response['token_invalid'] = true;
+                $response['validator_error'] = $validator->errors();
+                return sendError('The selected token is invalid', $response);
             }
 
             $verifyUser = User::firstWhere(User::VERIFICATION_TOKEN, $request->token);
@@ -108,7 +117,6 @@ class AuthController extends Controller
                     User::EMAIL => $verifyUser->email,
                 ];
                 return sendResponse($response, 'Token has expired.');
-                // return redirect()->route('resend')->with('error', );
             }
 
             $response[User::STATUS] = false;
@@ -125,12 +133,9 @@ class AuthController extends Controller
                     ]);
 
                     return sendResponse($response, 'Verification success.');
-
-                    return $this->emailLogin($verifyUser);
-                    // $message = __('Your e-mail has been successfully verified. You can now login.');
                 } else {
                     $response[User::STATUS] = true;
-                    $message = "Your e-mail is already verified. You can now login.";
+                    $message = "Your e-mail is already verified. ";
                 }
             }
             return sendResponse($response, $message);
